@@ -3,6 +3,17 @@
 	{
 		var $name = 'Store';
 
+	    var $actsAs = array();
+
+	    function __construct($id = false, $table = null, $ds = null) {
+	    	$this->actsAs = array(
+	    		'StoreFinder.Geocoded' => array(
+			        'key' => Configure::read('App.google_maps_api')
+			    )
+	    	);
+			parent::__construct($id, $table, $ds);
+	    }
+
 		function findNearPostcode($postcode)
 		{
 			$sql = "SELECT
@@ -17,7 +28,20 @@
 						Store.id
 					ORDER BY
 						Store.suburb, Store.name";
-			return $this->query($sql);
+			$results = $this->query($sql);
+			$results = $this->__filterResults($results);
+			return $results;
+		}
+
+		/** adds lat / long info to results **/
+		function afterFind($results) {
+			foreach ($results as &$result) {
+				$latlong = $this->geocode($result['Store']);
+				if ( $latlong ) {
+					$result['Store'] = array_merge($result['Store'], $latlong);
+				}
+			}
+			return $results;
 		}
 	}
 ?>
