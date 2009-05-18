@@ -2,7 +2,6 @@
 	class Store extends AppModel
 	{
 		var $name = 'Store';
-
 	    var $actsAs = array();
 
 	    function __construct($id = false, $table = null, $ds = null) {
@@ -16,6 +15,7 @@
 
 		function findNearPostcode($postcode)
 		{
+			return $this->find('all', array('limit' => '20', 'order' => 'RAND()'));
 			$sql = "SELECT
 						Store.*
 					FROM
@@ -35,6 +35,9 @@
 
 		/** adds lat / long info to results **/
 		function afterFind($results) {
+			if ( !isset($results[0]['Store']) ) {
+				return $results;
+			}
 			foreach ($results as &$result) {
 				$latlong = $this->geocode($result['Store']);
 				if ( $latlong ) {

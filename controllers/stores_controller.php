@@ -3,6 +3,22 @@ class StoresController extends StoreFinderAppController {
 
 	var $name = 'Stores';
 	var $uses = array('StoreFinder.Store');
+	var $components = array(
+		'Advindex.Advindex' => array(
+			'fields' => array(
+				'name' => 'Name',
+				'address' => 'Address',
+				'suburb' => 'City',
+				'state' => 'State',
+				'postcode' => 'Zip/Postal',
+				'phone' => 'Clinic Phone Number',
+				'website' => 'Website'
+			),
+			'update_if_fields' => array(
+				'name'
+			)
+		)
+	);
 	var $helpers = array('Advindex.Advindex');
 	var $layout = 'app';
 

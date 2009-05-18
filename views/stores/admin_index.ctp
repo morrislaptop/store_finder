@@ -6,7 +6,12 @@ echo $paginator->counter(array(
 'format' => __('Page %page% of %pages%, showing %current% records out of %count% total, starting on record %start%, ending on %end%', true)
 ));
 ?></p>
-<p><?php echo $advindex->export('Export as CSV'); ?></p>
+<p>
+	<?php echo $advindex->export('Export as CSV'); ?>
+	|
+	<?php echo $html->link('Import from CSV', '#', array('onclick' => "\$('#StoreImportForm').toggle();")); ?>
+</p>
+<?php echo $advindex->import('Store', array('style' => 'display: none;')); ?>
 <?php echo $advindex->create('Store'); ?>
 <p> Display <?php echo $advindex->perPage(); ?> per page</p>
 <table cellpadding="0" cellspacing="0">

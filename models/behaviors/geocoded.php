@@ -87,7 +87,9 @@ class GeocodedBehavior extends ModelBehavior {
 		} else {
 			$code = array($fields[0] => $code['Geocode']['lat'], $fields[1] => $code['Geocode']['lon']);
 		}
-		return array_reverse($code);
+		if ( $code ) {
+			return array_reverse($code);
+		}
 	}
 /**
  * Get geocode lat/lon points for given address from web service (Google/Yahoo!)
