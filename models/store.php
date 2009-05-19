@@ -15,7 +15,7 @@
 
 		function findNearPostcode($postcode)
 		{
-			return $this->find('all', array('limit' => '20', 'order' => 'RAND()'));
+			#return $this->find('all', array('limit' => '20', 'order' => 'RAND()'));
 			$sql = "SELECT
 						Store.*
 					FROM
