@@ -16,7 +16,7 @@ class StoresController extends StoreFinderAppController {
 			),
 			'update_if_fields' => array(
 				'name'
-			)
+			),
 		)
 	);
 	var $helpers = array('Advindex.Advindex');

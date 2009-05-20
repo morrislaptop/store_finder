@@ -1,5 +1,5 @@
 <?php
-	class Store extends AppModel
+	class Store extends StoreFinderAppModel
 	{
 		var $name = 'Store';
 	    var $actsAs = array();
@@ -7,7 +7,7 @@
 	    function __construct($id = false, $table = null, $ds = null) {
 	    	$this->actsAs = array(
 	    		'StoreFinder.Geocoded' => array(
-			        'key' => Configure::read('App.google_maps_api')
+			        'key' => Configure::read('App.StoreFinder.google_maps_api')
 			    )
 	    	);
 			parent::__construct($id, $table, $ds);
