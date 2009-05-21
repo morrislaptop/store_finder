@@ -1,5 +1,5 @@
 <?php
-	$javascript->link('http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . Configure::read('App.StoreFinder.google_maps_api'), false);
+	$javascript->link('http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . Configure::read('StoreFinder.google_maps_api'), false);
 
 	foreach ($stores as $store)
 	{

@@ -1,7 +1,7 @@
 <?php
 	if ( $stores ) {
 		App::import('Vendor', 'StoreFinder.GoogleMapAPI', array('file' => 'GoogleMapAPI.class.php'));
-		$javascript->link('http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . Configure::read('App.StoreFinder.google_maps_api'), false); // dont use GoogleMapAPI for js file call
+		$javascript->link('http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=' . Configure::read('StoreFinder.google_maps_api'), false); // dont use GoogleMapAPI for js file call
 		$map = new GoogleMapAPI('map_wrap');
 		$map->map_controls = false;
 		$map->type_controls = false;
