@@ -59,6 +59,17 @@ class StoresController extends StoreFinderAppController {
 		$this->_setFormData();
 	}
 
+	function admin_delete($id = null) {
+		if (!$id) {
+			$this->Session->setFlash(__('Invalid id for Store', true));
+			$this->redirect(array('action'=>'index'));
+		}
+		if ($this->Store->del($id)) {
+			$this->Session->setFlash(__('Store deleted', true));
+			$this->redirect(array('action'=>'index'));
+		}
+	}
+
 	function _setFormData() {
 		$states = array('NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT', 'VIC');
 		$states = array_combine($states, $states);
@@ -70,15 +81,17 @@ class StoresController extends StoreFinderAppController {
 		if ( !empty($this->data['Store']['postcode']) ) {
 			$this->redirect(array('action' => 'find', $this->data['Store']['postcode']));
 		}
-		// No Postocde, just display the form.
-		if ( !$postcode ) {
-			$this->render('find');
-			return;
-		}
+
 		// We have postcode, search for stores.
-		$stores = $this->Store->findNearPostcode($postcode);
-		$this->set(compact('stores'));
-		$this->render('find_results');
+		$searched = false;
+		if ( $postcode ) {
+			$stores = $this->Store->findNearPostcode($postcode);
+			$searched = true;
+		}
+		else {
+			$stores = $this->Store->find('all');
+		}
+		$this->set(compact('stores', 'searched'));
 	}
 }
 ?>

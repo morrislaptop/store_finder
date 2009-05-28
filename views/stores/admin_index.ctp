@@ -17,22 +17,22 @@ echo $paginator->counter(array(
 <table cellpadding="0" cellspacing="0">
 	<thead>
 		<tr>
-			<th><?php echo $paginator->sort('Store.id');?></th>
-			<th><?php echo $paginator->sort('Store.name');?></th>
-			<th><?php echo $paginator->sort('Store.email');?></th>
-			<th><?php echo $paginator->sort('Store.suburb');?></th>
-			<th><?php echo $paginator->sort('Store.postcode');?></th>
-			<th><?php echo $paginator->sort('Store.state');?></th>
-			<th><?php echo $paginator->sort('Store.created');?></th>
+			<th><?php echo $paginator->sort('id');?></th>
+			<th><?php echo $paginator->sort('name');?></th>
+			<th><?php echo $paginator->sort('email');?></th>
+			<th><?php echo $paginator->sort('suburb');?></th>
+			<th><?php echo $paginator->sort('postcode');?></th>
+			<th><?php echo $paginator->sort('state');?></th>
+			<th><?php echo $paginator->sort('created');?></th>
 			<th class="actions"><?php __('Actions');?></th>
 		</tr>
 		<tr>
-			<th><?php echo $advindex->filter('Store.id');?></th>
-			<th><?php echo $advindex->filter('Store.name');?></th>
-			<th><?php echo $advindex->filter('Store.email');?></th>
-			<th><?php echo $advindex->filter('Store.suburb');?></th>
-			<th><?php echo $advindex->filter('Store.postcode');?></th>
-			<th><?php echo $advindex->filter('Store.state');?></th>
+			<th><?php echo $advindex->filter('id');?></th>
+			<th><?php echo $advindex->filter('name');?></th>
+			<th><?php echo $advindex->filter('email');?></th>
+			<th><?php echo $advindex->filter('suburb');?></th>
+			<th><?php echo $advindex->filter('postcode');?></th>
+			<th><?php echo $advindex->filter('state');?></th>
 			<th><?php echo $advindex->filter('Store.created', array('type' => 'date'));?></th>
 			<th class="actions"><?php echo $advindex->search(); ?></th>
 		</tr>
@@ -68,7 +68,6 @@ foreach ($stores as $store):
 			<?php echo $store['Store']['created']; ?>
 		</td>
 		<td class="actions">
-			<?php echo $html->link(__('View', true), array('action'=>'view', $store['Store']['id'])); ?>
 			<?php echo $html->link(__('Edit', true), array('action'=>'edit', $store['Store']['id'])); ?>
 			<?php echo $html->link(__('Delete', true), array('action'=>'delete', $store['Store']['id']), null, sprintf(__('Are you sure you want to delete # %s?', true), $store['Store']['id'])); ?>
 		</td>

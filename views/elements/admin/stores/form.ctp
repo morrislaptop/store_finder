@@ -1,4 +1,5 @@
 <?php
+	echo $uniform->input('id');
 	echo $uniform->input('name');
 	echo $uniform->input('email');
 	echo $uniform->input('phone');
