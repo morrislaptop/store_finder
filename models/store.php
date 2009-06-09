@@ -3,6 +3,9 @@
 	{
 		var $name = 'Store';
 	    var $actsAs = array();
+	    var $belongsTo = array(
+	    	'Postcode' // we cant join this so ALWAYS contain
+	    );
 
 	    function __construct($id = false, $table = null, $ds = null) {
 	    	$this->actsAs = array(
@@ -27,10 +30,23 @@
 					GROUP BY
 						Store.id
 					ORDER BY
-						Store.suburb, Store.name";
+						Store.postcode = '{$postcode}' DESC, Store.suburb, Store.name";
 			$results = $this->query($sql);
 			$results = $this->__filterResults($results);
 			return $results;
+		}
+
+		function findInStateFromPostcode($postcode)
+		{
+			// get the state
+			$postcode = $this->Postcode->findByPcode($postcode);
+			if ( !$postcode ) {
+				return array();
+			}
+
+			// get all in the state.
+			$this->contain();
+			return $this->findAllByState($postcode['Postcode']['state']);
 		}
 
 		/** adds lat / long info to results **/

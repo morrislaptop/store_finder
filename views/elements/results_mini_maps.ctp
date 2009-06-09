@@ -9,7 +9,7 @@
 			<div class="details">
 				<p><strong><?php echo $store['Store']['name']; ?></strong></p>
 				<p>
-					<?php echo $store['Store']['address']; ?><br />
+					<?php echo $store['Store']['display_address']; ?><br />
 					<?php echo $store['Store']['suburb']; ?><br />
 					<?php echo $store['Store']['postcode']; ?> <?php echo $store['Store']['state']; ?><br />
 				</p>
@@ -63,7 +63,7 @@
 								var marker = new GMarker(point);
 								map.setCenter(point, 15);
 								map.addOverlay(marker);
-							');							
+							');
 						}
 					?>
 				</ul>

@@ -20,6 +20,7 @@ echo $paginator->counter(array(
 			<th><?php echo $paginator->sort('id');?></th>
 			<th><?php echo $paginator->sort('name');?></th>
 			<th><?php echo $paginator->sort('email');?></th>
+			<th><?php echo $paginator->sort('password');?></th>
 			<th><?php echo $paginator->sort('suburb');?></th>
 			<th><?php echo $paginator->sort('postcode');?></th>
 			<th><?php echo $paginator->sort('state');?></th>
@@ -30,6 +31,7 @@ echo $paginator->counter(array(
 			<th><?php echo $advindex->filter('id');?></th>
 			<th><?php echo $advindex->filter('name');?></th>
 			<th><?php echo $advindex->filter('email');?></th>
+			<th><?php echo $advindex->filter('password');?></th>
 			<th><?php echo $advindex->filter('suburb');?></th>
 			<th><?php echo $advindex->filter('postcode');?></th>
 			<th><?php echo $advindex->filter('state');?></th>
@@ -54,6 +56,9 @@ foreach ($stores as $store):
 		</td>
 		<td>
 			<?php echo $store['Store']['email']; ?>
+		</td>
+		<td>
+			<?php echo $store['Store']['password']; ?>
 		</td>
 		<td>
 			<?php echo $store['Store']['suburb']; ?>

@@ -7,6 +7,7 @@ class StoresController extends StoreFinderAppController {
 		'Advindex.Advindex' => array(
 			'fields' => array(
 				'name' => 'Name',
+				'password' => 'Password',
 				'address' => 'Address',
 				'suburb' => 'City',
 				'state' => 'State',
@@ -21,6 +22,14 @@ class StoresController extends StoreFinderAppController {
 	);
 	var $helpers = array('Advindex.Advindex');
 	var $layout = 'app';
+	var $paginate = array(
+		'contain' => array()
+	);
+
+	/**
+	* @var Store
+	*/
+	var $Store;
 
 	function admin_index() {
 		$this->Store->recursive = 0;
@@ -54,6 +63,7 @@ class StoresController extends StoreFinderAppController {
 			}
 		}
 		if (empty($this->data)) {
+			$this->Store->contain();
 			$this->data = $this->Store->read(null, $id);
 		}
 		$this->_setFormData();
@@ -92,6 +102,20 @@ class StoresController extends StoreFinderAppController {
 			$stores = $this->Store->find('all');
 		}
 		$this->set(compact('stores', 'searched'));
+	}
+
+	function set_passwords()
+	{
+		$stores = $this->Store->find('all');
+		foreach ($stores as $s)
+		{
+			$matches = array();
+			preg_match_all('/\W(.)/', $s['Store']['name'], $matches);
+			array_unshift($matches[1], substr($s['Store']['name'], 0, 1));
+			$pass = implode('', $matches[1]) . $s['Store']['postcode'];
+			$this->Store->id = $s['Store']['id'];
+			$this->Store->saveField('password', $pass);
+		}
 	}
 }
 ?>
