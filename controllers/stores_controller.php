@@ -2,7 +2,6 @@
 class StoresController extends StoreFinderAppController {
 
 	var $name = 'Stores';
-	var $uses = array('StoreFinder.Store');
 	var $components = array(
 		'Advindex.Advindex' => array(
 			'fields' => array(
@@ -40,10 +39,10 @@ class StoresController extends StoreFinderAppController {
 		if (!empty($this->data)) {
 			$this->Store->create();
 			if ($this->Store->save($this->data)) {
-				$this->Session->setFlash(__('The store have been saved'), true);
+				$this->Session->setFlash(__('The store have been saved', true), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The page could not be saved. Please, try again.', true), 'default', array('class' => 'errorMsg'));
+				$this->Session->setFlash(__('The page could not be saved. Please, try again.', true), 'default', array('class' => 'error'));
 			}
 		}
 		$this->_setFormData();
@@ -56,10 +55,10 @@ class StoresController extends StoreFinderAppController {
 		}
 		if (!empty($this->data)) {
 			if ($this->Store->save($this->data)) {
-				$this->Session->setFlash(__('The store have been saved'), true);
+				$this->Session->setFlash(__('The store have been saved', true), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
-				$this->Session->setFlash(__('The store content could not be saved. Please, try again.', true));
+				$this->Session->setFlash(__('The store content could not be saved. Please, try again.', true), 'default', array('class' => 'error'));
 			}
 		}
 		if (empty($this->data)) {
@@ -75,7 +74,7 @@ class StoresController extends StoreFinderAppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if ($this->Store->del($id)) {
-			$this->Session->setFlash(__('Store deleted', true));
+			$this->Session->setFlash(__('Store deleted', true), 'default', array('class' => 'success'));
 			$this->redirect(array('action'=>'index'));
 		}
 	}

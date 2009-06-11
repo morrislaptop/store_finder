@@ -4,7 +4,12 @@
 		var $name = 'Store';
 	    var $actsAs = array();
 	    var $belongsTo = array(
-	    	'Postcode' // we cant join this so ALWAYS contain
+	    	'Postcode' => array(
+	    		'foreignKey' => false
+	    	),
+	    	'Geocode' => array(
+	    		'foreignKey' => false
+	    	)
 	    );
 
 	    function __construct($id = false, $table = null, $ds = null) {
@@ -61,6 +66,21 @@
 				}
 			}
 			return $results;
+		}
+
+		function afterSave() {
+			if ( !empty($this->data['Store']['lat']) && !empty($this->data['Store']['lon']) ) {
+				$address = $this->geocode_address($this->data['Store']);
+				if ( $geocode = $this->Geocode->findByAddress($address) ) {
+					$this->Geocode->id = $geocode['Geocode']['id'];
+				}
+				$data = array(
+					'address' => $address,
+					'lat' => $this->data['Store']['lat'],
+					'lon' => $this->data['Store']['lon']
+				);
+				$this->Geocode->save($data);
+			}
 		}
 	}
 ?>

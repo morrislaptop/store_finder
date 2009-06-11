@@ -61,6 +61,29 @@ class GeocodedBehavior extends ModelBehavior {
 	function geocode(&$model, $address) {
 		extract($this->settings[$model->name]);
 
+		$address = $this->geocode_address($model, $address);
+		if (empty($address)) {
+			// trigger_error
+			return false;
+		}
+
+		if (!$code = $model->Geocode->findByAddress($address)) {
+			if ($code = $this->_geocoords($model, $address)) {
+				$model->Geocode->create();
+				$model->Geocode->save(array('address' => low($address), 'lat' => $code[$fields[0]], 'lon' => $code[$fields[1]]));
+			}
+		} else {
+			$code = array($fields[0] => $code['Geocode']['lat'], $fields[1] => $code['Geocode']['lon']);
+		}
+		if ( $code ) {
+			return array_reverse($code);
+		}
+	}
+/**
+ * Returns the address that should be used for geocoding.
+ */
+ 	function geocode_address(&$model, $address)
+ 	{
 		if (is_array($address)) {
 			$out = '';
 			if (isset($address[$model->name])) {
@@ -74,23 +97,8 @@ class GeocodedBehavior extends ModelBehavior {
 			}
 			$address = trim($out);
 		}
-		if (empty($address)) {
-			// trigger_error
-			return false;
-		}
-
-		if (!$code = $model->Geocode->findByAddress(low($address))) {
-			if ($code = $this->_geocoords($model, $address)) {
-				$model->Geocode->create();
-				$model->Geocode->save(array('address' => low($address), 'lat' => $code[$fields[0]], 'lon' => $code[$fields[1]]));
-			}
-		} else {
-			$code = array($fields[0] => $code['Geocode']['lat'], $fields[1] => $code['Geocode']['lon']);
-		}
-		if ( $code ) {
-			return array_reverse($code);
-		}
-	}
+		return low($address);
+ 	}
 /**
  * Get geocode lat/lon points for given address from web service (Google/Yahoo!)
  *

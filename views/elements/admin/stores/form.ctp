@@ -1,13 +1,13 @@
 <?php
-	echo $uniform->input('id');
-	echo $uniform->input('name');
-	echo $uniform->input('email');
-	echo $uniform->input('password');
-	echo $uniform->input('phone');
-	echo $uniform->input('website');
-	echo $uniform->input('display_address');
-	echo $uniform->input('address');
-	echo $uniform->input('suburb');
-	echo $uniform->input('postcode');
-	echo $uniform->input('state');
+	echo $html->css('forms', false, false, false);
+	echo $advform->input('id');
+	echo $advform->input('name');
+	echo $advform->input('email');
+	echo $advform->input('phone');
+	echo $advform->input('website');
+	echo $advform->input('address1');
+	echo $advform->input('address2');
+	echo $advform->input('suburb');
+	echo $advform->input('postcode');
+	echo $advform->input('state');
 ?>
