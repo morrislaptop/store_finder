@@ -5,7 +5,7 @@
 <?php echo $advindex->import('Store', array('style' => 'display: none;')); ?>
 <?php echo $advindex->create('Store'); ?>
 <table cellpadding="0" cellspacing="0">
-	<?php echo $this->element('thead', array('plugin' => 'advindex', 'exclude' => array('phone', 'address1', 'address2', 'website', 'modified', 'lon', 'lat'))); ?>
+	<?php echo $this->element('thead', array('plugin' => 'advindex', 'exclude' => array('phone', 'display_address', 'address1', 'address2', 'website', 'modified', 'lon', 'lat'))); ?>
 	<tbody>
 		<?php
 		$i = 0;

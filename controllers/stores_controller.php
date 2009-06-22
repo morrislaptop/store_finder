@@ -20,7 +20,6 @@ class StoresController extends StoreFinderAppController {
 		)
 	);
 	var $helpers = array('Advindex.Advindex');
-	var $layout = 'app';
 	var $paginate = array(
 		'contain' => array()
 	);
@@ -79,42 +78,20 @@ class StoresController extends StoreFinderAppController {
 		}
 	}
 
+	function admin_reset()
+	{
+		$stores = $this->Store->find('all');
+		foreach ($stores as $store) {
+			$this->Store->create();
+			unset($store['Store']['lat'], $store['Store']['lon']);
+			$this->Store->save($store);
+		}
+	}
+
 	function _setFormData() {
 		$states = array('NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT', 'VIC');
 		$states = array_combine($states, $states);
 		$this->set(compact('states'));
-	}
-
-	function find($postcode = null) {
-		// Catch data.
-		if ( !empty($this->data['Store']['postcode']) ) {
-			$this->redirect(array('action' => 'find', $this->data['Store']['postcode']));
-		}
-
-		// We have postcode, search for stores.
-		$searched = false;
-		if ( $postcode ) {
-			$stores = $this->Store->findNearPostcode($postcode);
-			$searched = true;
-		}
-		else {
-			$stores = $this->Store->find('all');
-		}
-		$this->set(compact('stores', 'searched'));
-	}
-
-	function set_passwords()
-	{
-		$stores = $this->Store->find('all');
-		foreach ($stores as $s)
-		{
-			$matches = array();
-			preg_match_all('/\W(.)/', $s['Store']['name'], $matches);
-			array_unshift($matches[1], substr($s['Store']['name'], 0, 1));
-			$pass = implode('', $matches[1]) . $s['Store']['postcode'];
-			$this->Store->id = $s['Store']['id'];
-			$this->Store->saveField('password', $pass);
-		}
 	}
 }
 ?>

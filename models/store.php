@@ -3,14 +3,6 @@
 	{
 		var $name = 'Store';
 	    var $actsAs = array();
-	    var $belongsTo = array(
-	    	'Postcode' => array(
-	    		'foreignKey' => false
-	    	),
-	    	'Geocode' => array(
-	    		'foreignKey' => false
-	    	)
-	    );
 
 	    function __construct($id = false, $table = null, $ds = null) {
 	    	$this->actsAs = array(
@@ -21,6 +13,13 @@
 			parent::__construct($id, $table, $ds);
 	    }
 
+	    /**
+	    * Finds all stores in the same region as the postcode, as supplied
+	    * by the Australia Post data.
+	    *
+	    * @param mixed $postcode
+	    * @return array
+	    */
 		function findNearPostcode($postcode)
 		{
 			#return $this->find('all', array('limit' => '20', 'order' => 'RAND()'));
@@ -41,46 +40,39 @@
 			return $results;
 		}
 
+		/**
+		* Finds stores within a distance
+		*
+		* @param mixed $postcode
+		*/
+		function findClosest($from, $limit)
+		{
+			$from = $this->geocode($from);
+			$results = $this->findAllNearDistance($from, $limit);
+			return $results;
+		}
+
 		function findInStateFromPostcode($postcode)
 		{
 			// get the state
-			$postcode = $this->Postcode->findByPcode($postcode);
+			App::import('Model', 'Postcode');
+			$Postcode = new Postcode();
+			$postcode = $Postcode->findByPcode($postcode);
 			if ( !$postcode ) {
 				return array();
 			}
 
-			// get all in the state.
-			$this->contain();
+			// get all in the state
 			return $this->findAllByState($postcode['Postcode']['state']);
 		}
 
-		/** adds lat / long info to results **/
-		function afterFind($results) {
-			if ( !isset($results[0]['Store']) ) {
-				return $results;
-			}
-			foreach ($results as &$result) {
-				$latlong = $this->geocode($result['Store']);
-				if ( $latlong ) {
-					$result['Store'] = array_merge($result['Store'], $latlong);
+		function beforeSave() {
+			if ( empty($this->data['Store']['lat']) || empty($this->data['Store']['lon']) ) {
+				if ($coords = $this->geocode($this->data)) {
+					$this->set($coords);
 				}
 			}
-			return $results;
-		}
-
-		function afterSave() {
-			if ( !empty($this->data['Store']['lat']) && !empty($this->data['Store']['lon']) ) {
-				$address = $this->geocode_address($this->data['Store']);
-				if ( $geocode = $this->Geocode->findByAddress($address) ) {
-					$this->Geocode->id = $geocode['Geocode']['id'];
-				}
-				$data = array(
-					'address' => $address,
-					'lat' => $this->data['Store']['lat'],
-					'lon' => $this->data['Store']['lon']
-				);
-				$this->Geocode->save($data);
-			}
+			return true;
 		}
 	}
 ?>

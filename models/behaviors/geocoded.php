@@ -41,7 +41,11 @@ class GeocodedBehavior extends ModelBehavior {
 		extract($this->settings[$model->name]);
 
 		if (!isset($model->Geocode)) {
-			$model->Geocode = ClassRegistry::init('Geocode');
+			if (App::import('Model', 'Geocode')) {
+				$model->Geocode =& new Geocode();
+			} else {
+				$model->Geocode =& new DynamicModel(array('name' => 'Geocode', 'table' => $cacheTable));
+			}
 		}
 
 		if (!isset($this->lookupServices[low($lookup)])) {
@@ -61,35 +65,12 @@ class GeocodedBehavior extends ModelBehavior {
 	function geocode(&$model, $address) {
 		extract($this->settings[$model->name]);
 
-		$address = $this->geocode_address($model, $address);
-		if (empty($address)) {
-			// trigger_error
-			return false;
-		}
-
-		if (!$code = $model->Geocode->findByAddress($address)) {
-			if ($code = $this->_geocoords($model, $address)) {
-				$model->Geocode->create();
-				$model->Geocode->save(array('address' => low($address), 'lat' => $code[$fields[0]], 'lon' => $code[$fields[1]]));
-			}
-		} else {
-			$code = array($fields[0] => $code['Geocode']['lat'], $fields[1] => $code['Geocode']['lon']);
-		}
-		if ( $code ) {
-			return array_reverse($code);
-		}
-	}
-/**
- * Returns the address that should be used for geocoding.
- */
- 	function geocode_address(&$model, $address)
- 	{
 		if (is_array($address)) {
 			$out = '';
 			if (isset($address[$model->name])) {
 				$address = $address[$model->name];
 			}
-			$vars = array('street', 'address', 'addr', 'address1', 'addr1', 'address2', 'address2', 'apt', 'suburb', 'city', 'state', 'zip', 'zipcode', 'zip_code', 'postcode', 'pcode');
+			$vars = array('street', 'address', 'addr', 'address1', 'addr1', 'address2', 'addr2', 'apt', 'city', 'state', 'zip', 'zipcode', 'zip_code', 'postcode', 'pcode', 'country');
 			foreach ($vars as $var) {
 				if (isset($address[$var])) {
 					$out = trim($out) . ' ' . $address[$var];
@@ -97,8 +78,21 @@ class GeocodedBehavior extends ModelBehavior {
 			}
 			$address = trim($out);
 		}
-		return low($address);
- 	}
+		if (empty($address)) {
+			// trigger_error
+			return false;
+		}
+
+		if (!$code = $model->Geocode->findByAddress(low($address))) {
+			if ($code = $this->_geocoords($model, $address)) {
+				$model->Geocode->create();
+				$model->Geocode->save(array('address' => low($address), 'lat' => $code[$fields[0]], 'lon' => $code[$fields[1]]));
+			}
+		} else {
+			$code = array($fields[0] => $code['Geocode']['lat'], $fields[1] => $code['Geocode']['lon']);
+		}
+		return array_reverse($code);
+	}
 /**
  * Get geocode lat/lon points for given address from web service (Google/Yahoo!)
  *
@@ -147,7 +141,7 @@ class GeocodedBehavior extends ModelBehavior {
  * @param mixed $y  If $x is an array, this value is used as $distance, otherwise, the Y coordinate.
  * @param float $distance  The distance (in miles) to search within
  */
-	function findallbydistance(&$model, $x, $y, $distance = null) {
+	function findAllBydistance(&$model, $x, $y, $distance = null) {
 		extract($this->settings[$model->name]);
 		if (is_array($x)) {
 			$distance = $y;
@@ -156,6 +150,49 @@ class GeocodedBehavior extends ModelBehavior {
 		list($x2, $y2) = array($model->escapeField($fields[1]), $model->escapeField($fields[0]));
 		list($x, $y, $distance) = array(floatval($x), floatval($y), floatval($distance));
 		return $model->findAll("(3958 * 3.1415926 * SQRT(({$y2} - {$y}) * ({$y2} - {$y}) + COS({$y2} / 57.29578) * COS({$y} / 57.29578) * ({$x2} - {$x}) * ({$x2} - {$x})) / 180) <= {$distance}");
+	}
+/**
+ * Generates an SQL query to calculate the distance between the coordinates of each record and the given x/y values,
+ * and compares the result to $distance.
+ *
+ * @param mixed $x  Either a float or an array.  If an array, it should contain the X and Y values of the coordinate.
+ * @param mixed $y  If $x is an array, this value is used as $distance, otherwise, the Y coordinate.
+ * @param float $distance  The distance (in miles) to search within
+ */
+	function findAllNearDistance(&$model, $x, $y, $limit = null) {
+		extract($this->settings[$model->name]);
+		if (is_array($x)) {
+			$limit = $y;
+			list($x, $y) = array_values($x);
+		}
+		list($x2, $y2) = array($model->escapeField($fields[1]), $model->escapeField($fields[0]));
+		list($x, $y) = array(floatval($x), floatval($y));
+		$fields = array(
+			"(3958 * 3.1415926 * SQRT(({$y2} - {$y}) * ({$y2} - {$y}) + COS({$y2} / 57.29578) * COS({$y} / 57.29578) * ({$x2} - {$x}) * ({$x2} - {$x})) / 180) as distance",
+			$model->alias . '.*'
+		);
+		$order = 'distance ASC';
+		return $model->find('all', compact('fields', 'order', 'limit'));
+	}
+}
+
+class DynamicModel extends AppModel {
+
+	function __construct($options = array()) {
+		if (is_string($options)) {
+			$options = array('name' => $options);
+		}
+		if (!isset($options['name'])) {
+			return null;
+		}
+		$options = am(array(
+			'id' => false,
+			'table' => null,
+			'ds' => null
+		), $options);
+
+		$this->name = $options['name'];
+		parent::__construct($options['id'], $options['table'], $options['ds']);
 	}
 }
 
