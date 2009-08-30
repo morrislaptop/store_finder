@@ -1,7 +1,8 @@
 <?php
+	$store = $data;
 	$id = $store['Store']['id'];
 ?>
-<div class="store">
+<td class="store">
 	<div class="details">
 		<p><strong><?php echo $store['Store']['name']; ?></strong></p>
 		<p>
@@ -46,4 +47,4 @@
 		</ul>
 	</div>
 	<div class="clear"></div>
-</div>
+</td>

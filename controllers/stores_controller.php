@@ -4,18 +4,9 @@ class StoresController extends StoreFinderAppController {
 	var $name = 'Stores';
 	var $components = array(
 		'Advindex.Advindex' => array(
-			'fields' => array(
-				'name' => 'Name',
-				'password' => 'Password',
-				'address' => 'Address',
-				'suburb' => 'City',
-				'state' => 'State',
-				'postcode' => 'Zip/Postal',
-				'phone' => 'Clinic Phone Number',
-				'website' => 'Website'
-			),
 			'update_if_fields' => array(
-				'name'
+				'name',
+				'postcode'
 			),
 		)
 	);

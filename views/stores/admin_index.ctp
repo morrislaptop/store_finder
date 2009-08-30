@@ -2,7 +2,7 @@
 <div class="stores index">
 <h2><?php __('Stores');?></h2>
 <p><?php echo $advindex->export('Export as CSV'); ?> | <?php echo $html->link('Import from CSV', '#', array('onclick' => "\$('#StoreImportForm').toggle();")); ?></p>
-<?php echo $advindex->import('Store', array('style' => 'display: none;')); ?>
+<?php echo $this->element('import_form', array('plugin' => 'advindex', 'model' => 'Store')); ?>
 <?php echo $advindex->create('Store'); ?>
 <table cellpadding="0" cellspacing="0">
 	<?php echo $this->element('thead', array('plugin' => 'advindex', 'exclude' => array('phone', 'display_address', 'address1', 'address2', 'website', 'modified', 'lon', 'lat'))); ?>

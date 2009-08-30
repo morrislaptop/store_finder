@@ -88,6 +88,9 @@ class GeocodedBehavior extends ModelBehavior {
 				$model->Geocode->create();
 				$model->Geocode->save(array('address' => low($address), 'lat' => $code[$fields[0]], 'lon' => $code[$fields[1]]));
 			}
+			else {
+				$code = array();
+			}
 		} else {
 			$code = array($fields[0] => $code['Geocode']['lat'], $fields[1] => $code['Geocode']['lon']);
 		}
@@ -171,8 +174,9 @@ class GeocodedBehavior extends ModelBehavior {
 			"(3958 * 3.1415926 * SQRT(({$y2} - {$y}) * ({$y2} - {$y}) + COS({$y2} / 57.29578) * COS({$y} / 57.29578) * ({$x2} - {$x}) * ({$x2} - {$x})) / 180) as distance",
 			$model->alias . '.*'
 		);
-		$order = 'distance ASC';
-		return $model->find('all', compact('fields', 'order', 'limit'));
+		$order = array('distance IS NOT NULL DESC', 'distance ASC');
+		$records = $model->find('all', compact('fields', 'order', 'limit', 'conditions'));
+		return $records;
 	}
 }
 
