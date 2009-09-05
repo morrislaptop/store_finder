@@ -4,7 +4,14 @@
 ?>
 <td class="store">
 	<div class="details">
-		<p><strong><?php echo $store['Store']['name']; ?></strong></p>
+		<p>
+			<?php
+				if ( !isset($store['Store']['ilve']) || !$store['Store']['ilve'] ) {
+					echo $html->image('markers/marker' . ($i-1) . '.png', array('style' => 'vertical-align: middle;'));
+				}
+			?>
+			<strong><?php echo $store['Store']['name']; ?></strong>
+		</p>
 		<p>
 			<?php echo $store['Store']['display_address']; ?><br />
 			<?php echo $store['Store']['suburb']; ?><br />

@@ -82,7 +82,9 @@ class StoresController extends StoreFinderAppController {
 	function _setFormData() {
 		$states = array('NSW', 'QLD', 'WA', 'SA', 'ACT', 'TAS', 'NT', 'VIC');
 		$states = array_combine($states, $states);
-		$this->set(compact('states'));
+		$countries = array('Australia', 'New Zealand');
+		$countries = array_combine($countries, $countries);
+		$this->set(compact('states', 'countries'));
 	}
 }
 ?>

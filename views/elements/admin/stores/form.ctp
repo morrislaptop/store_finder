@@ -9,5 +9,6 @@
 	echo $advform->input('address2');
 	echo $advform->input('suburb');
 	echo $advform->input('postcode');
-	echo $advform->input('state');
+	echo $advform->input('state', array('empty' => '- select -'));
+	echo $advform->input('country');
 ?>

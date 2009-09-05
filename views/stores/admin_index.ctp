@@ -5,7 +5,29 @@
 <?php echo $this->element('import_form', array('plugin' => 'advindex', 'model' => 'Store')); ?>
 <?php echo $advindex->create('Store'); ?>
 <table cellpadding="0" cellspacing="0">
-	<?php echo $this->element('thead', array('plugin' => 'advindex', 'exclude' => array('phone', 'display_address', 'address1', 'address2', 'website', 'modified', 'lon', 'lat'))); ?>
+	<thead>
+		<tr>
+			<th><?php echo $paginator->sort('id'); ?></th>
+			<th><?php echo $paginator->sort('name'); ?></th>
+			<th><?php echo $paginator->sort('email'); ?></th>
+			<th><?php echo $paginator->sort('suburb'); ?></th>
+			<th><?php echo $paginator->sort('postcode'); ?></th>
+			<th><?php echo $paginator->sort('state'); ?></th>
+			<th><?php echo $paginator->sort('visible'); ?></th>
+			<th><?php echo $paginator->sort('created'); ?></th>
+
+		</tr>
+		<tr class="filter">
+			<td><?php echo $advindex->filter('id'); ?></td>
+			<td><?php echo $advindex->filter('name'); ?></td>
+			<td><?php echo $advindex->filter('email'); ?></td>
+			<td><?php echo $advindex->filter('suburb'); ?></td>
+			<td><?php echo $advindex->filter('postcode'); ?></td>
+			<td><?php echo $advindex->filter('state'); ?></td>
+			<td><?php echo $advindex->filter('visible'); ?></td>
+			<td><?php echo $advindex->filter('created'); ?></td>
+		</tr>
+	</thead>
 	<tbody>
 		<?php
 		$i = 0;

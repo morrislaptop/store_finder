@@ -9,10 +9,15 @@
 	$map->overview_control = false;
 	$map->disableSidebar();
 
+	if ( !isset($addIcons) ) {
+		$addIcons = true;
+	}
+
 	if ( !$stores ) {
 		$map->setZoomLevel(4);
 		$map->setCenterCoords(142.745076, -30.335448);
 	}
+	$i = 1;
 	foreach ($stores as $store)
 	{
 		if ( isset($store['Store']['lon']) ) {
@@ -22,7 +27,9 @@
 				$store['Store']['suburb'],
 				$store['Store']['postcode'] . ' ' . $store['Store']['state']
 			);
+			$map->addMarkerIcon('/img/markers/marker' . $i . '.png', '/img/markers/shadow.png');
 			$map->addMarkerByCoords($store['Store']['lon'], $store['Store']['lat'], trim($store['Store']['name']), implode('<br />', $lines));
+			$i++;
 		}
 	}
 
