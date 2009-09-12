@@ -1,4 +1,3 @@
-<?php echo $html->css('tables', false, false, false); ?>
 <div class="stores index">
 <h2><?php __('Stores');?></h2>
 <p><?php echo $advindex->export('Export as CSV'); ?> | <?php echo $html->link('Import from CSV', '#', array('onclick' => "\$('#StoreImportForm').toggle();")); ?></p>
@@ -7,25 +6,26 @@
 <table cellpadding="0" cellspacing="0">
 	<thead>
 		<tr>
-			<th><?php echo $paginator->sort('id'); ?></th>
+			<th class="headerLeft"><?php echo $paginator->sort('id'); ?></th>
 			<th><?php echo $paginator->sort('name'); ?></th>
-			<th><?php echo $paginator->sort('email'); ?></th>
+			<th><?php echo $paginator->sort('display_address'); ?></th>
 			<th><?php echo $paginator->sort('suburb'); ?></th>
 			<th><?php echo $paginator->sort('postcode'); ?></th>
-			<th><?php echo $paginator->sort('state'); ?></th>
 			<th><?php echo $paginator->sort('visible'); ?></th>
+			<th>Location</th>
 			<th><?php echo $paginator->sort('created'); ?></th>
-
+			<th class="headerRight actions"><?php __('Actions'); ?></th>
 		</tr>
 		<tr class="filter">
 			<td><?php echo $advindex->filter('id'); ?></td>
-			<td><?php echo $advindex->filter('name'); ?></td>
-			<td><?php echo $advindex->filter('email'); ?></td>
+			<td><?php echo $advindex->filter('Contact.name'); ?></td>
+			<td><?php echo $advindex->filter('display_address'); ?></td>
 			<td><?php echo $advindex->filter('suburb'); ?></td>
 			<td><?php echo $advindex->filter('postcode'); ?></td>
-			<td><?php echo $advindex->filter('state'); ?></td>
 			<td><?php echo $advindex->filter('visible'); ?></td>
+			<td>&nbsp;</td>
 			<td><?php echo $advindex->filter('created'); ?></td>
+			<td><?php echo $advindex->search(); ?></td>
 		</tr>
 	</thead>
 	<tbody>
@@ -42,22 +42,22 @@
 					<?php echo $store['Store']['id']; ?>
 				</td>
 				<td>
-					<?php echo $store['Store']['name']; ?>
+					<?php echo $store['Contact']['name']; ?>
 				</td>
 				<td>
-					<?php echo $store['Store']['email']; ?>
+					<?php echo $store['Store']['display_address']; ?>
 				</td>
 				<td>
-					<?php echo $store['Store']['suburb']; ?>
+					<?php echo $store['Contact']['suburb']; ?>
 				</td>
 				<td>
-					<?php echo $store['Store']['postcode']; ?>
+					<?php echo $store['Contact']['postcode']; ?>
 				</td>
 				<td>
-					<?php echo $store['Store']['state']; ?>
+					<?php echo $this->element('toggler', array('plugin' => 'advindex', 'value' => $store['Store']['visible'], 'field' => 'visible', 'id' => $store['Store']['id'])); ?>
 				</td>
 				<td>
-					<?php echo $store['Store']['visible']; ?>
+					<?php echo $store['Store']['lat']; ?>, <?php echo $store['Store']['lon']; ?>
 				</td>
 				<td>
 					<?php echo $store['Store']['created']; ?>

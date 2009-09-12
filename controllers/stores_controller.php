@@ -11,9 +11,6 @@ class StoresController extends StoreFinderAppController {
 		)
 	);
 	var $helpers = array('Advindex.Advindex');
-	var $paginate = array(
-		'contain' => array()
-	);
 
 	/**
 	* @var Store
@@ -28,7 +25,8 @@ class StoresController extends StoreFinderAppController {
 	function admin_add() {
 		if (!empty($this->data)) {
 			$this->Store->create();
-			if ($this->Store->save($this->data)) {
+			$this->data['Contact']['model'] = $this->Store->alias;
+			if ($this->Store->saveAll($this->data)) {
 				$this->Session->setFlash(__('The store have been saved', true), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -44,7 +42,8 @@ class StoresController extends StoreFinderAppController {
 			$this->redirect(array('action'=>'index'));
 		}
 		if (!empty($this->data)) {
-			if ($this->Store->save($this->data)) {
+			$this->data['Contact']['model'] = $this->Store->alias;
+			if ($this->Store->saveAll($this->data)) {
 				$this->Session->setFlash(__('The store have been saved', true), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'index'));
 			} else {
@@ -52,7 +51,7 @@ class StoresController extends StoreFinderAppController {
 			}
 		}
 		if (empty($this->data)) {
-			$this->Store->contain();
+			$this->Store->contain('Contact');
 			$this->data = $this->Store->read(null, $id);
 		}
 		$this->_setFormData();

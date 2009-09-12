@@ -31,22 +31,19 @@ class GeocodedBehavior extends ModelBehavior {
  */
 	var $units = array('K' => 1.609344, 'N' => 0.868976242, 'F' => 5280, 'I' => 63360, 'M' => 1);
 
-	function setup(&$model, $config = array()) {
+	function setup(&$model, $config = array()) 
+	{
 		$this->settings[$model->name] = am(array(
-			'lookup'		=> 'google',
-			'key'			=> null,
-			'cacheTable'	=> 'geocodes',
-			'fields'		=> array('lat', 'lon')
+			'lookup' => 'google',
+			'key' => null,
+			'lat' => 'lat',
+			'lon' => 'lon',
+			'geoFields' => array(
+				'street', 'address', 'addr', 'address1', 'addr1', 'address2', 'addr2', 'apt', 'city', 'state', 'zip', 'zipcode', 
+				'zip_code', 'postcode', 'pcode', 'country'
+			)
 		), $config);
 		extract($this->settings[$model->name]);
-
-		if (!isset($model->Geocode)) {
-			if (App::import('Model', 'Geocode')) {
-				$model->Geocode =& new Geocode();
-			} else {
-				$model->Geocode =& new DynamicModel(array('name' => 'Geocode', 'table' => $cacheTable));
-			}
-		}
 
 		if (!isset($this->lookupServices[low($lookup)])) {
 			trigger_error('The lookup service "' . $lookup . '" does not exist.', E_USER_WARNING);
@@ -57,45 +54,38 @@ class GeocodedBehavior extends ModelBehavior {
 		}
 	}
 /**
- * Get the geocode latitude/longitude points from given address.
- * Look in the cache first, otherwise get from web service (Google/Yahoo!)
- *
- * @param string $address
+ * Retrieves the geo coordinates and sticks it in the model data before saving.
  */
-	function geocode(&$model, $address) {
+ 	function beforeSave(&$model) {
+ 		extract($this->settings[$model->name]);
+ 		if ( empty($model->data[$model->alias][$lat]) ) {
+			$address = $this->constructAddress($model);
+			$coords = $this->geocoords($model, $address);
+			$model->set($coords);
+ 		}
+ 		return true;
+ 	}
+/**
+ * Constructs a string of the address from the fields.
+ */
+ 	function constructAddress(&$model, $data = null) {
 		extract($this->settings[$model->name]);
+		if ( !$data ) {
+			$data = $model->data;
+		}
+		$addressParts = array();
+		foreach ($geoFields as $field) {
+			$alias = $model->alias;
+			if ( strpos($field, '.') !== false ) {
+				list($alias, $field) = explode('.', $field);
+			}
+			if ( !empty($data[$alias][$field]) ) {
+				$addressParts[] = $data[$alias][$field];
+			}
+		}
+		return low(implode(' ', $addressParts));
+ 	}
 
-		if (is_array($address)) {
-			$out = '';
-			if (isset($address[$model->name])) {
-				$address = $address[$model->name];
-			}
-			$vars = array('street', 'address', 'addr', 'address1', 'addr1', 'address2', 'addr2', 'apt', 'city', 'state', 'zip', 'zipcode', 'zip_code', 'postcode', 'pcode', 'country');
-			foreach ($vars as $var) {
-				if (isset($address[$var])) {
-					$out = trim($out) . ' ' . $address[$var];
-				}
-			}
-			$address = trim($out);
-		}
-		if (empty($address)) {
-			// trigger_error
-			return false;
-		}
-
-		if (!$code = $model->Geocode->findByAddress(low($address))) {
-			if ($code = $this->_geocoords($model, $address)) {
-				$model->Geocode->create();
-				$model->Geocode->save(array('address' => low($address), 'lat' => $code[$fields[0]], 'lon' => $code[$fields[1]]));
-			}
-			else {
-				$code = array();
-			}
-		} else {
-			$code = array($fields[0] => $code['Geocode']['lat'], $fields[1] => $code['Geocode']['lon']);
-		}
-		return array_reverse($code);
-	}
 /**
  * Get geocode lat/lon points for given address from web service (Google/Yahoo!)
  *
@@ -103,8 +93,13 @@ class GeocodedBehavior extends ModelBehavior {
  * @access private
  * @return array Latitude and longitude data, or false on failure
  */
-	function _geocoords(&$model, $address) {
+	function geocoords(&$model, $address) {
 		extract($this->settings[$model->name]);
+		
+		// Make sure its a string.
+		if ( is_array($address) ) {
+			$address = $this->constructAddress();
+		}
 
 		$url = r(
 			array('%key', '%address'),
@@ -115,7 +110,7 @@ class GeocodedBehavior extends ModelBehavior {
 		$code = false;
 		if($result = $this->connection->get($url)) {
 			if (preg_match($this->lookupServices[low($lookup)][1], $result, $match)) {
-				$code = array($fields[0] => floatval($match[1]), $fields[1] => floatval($match[2]));
+				$code = array($lat => floatval($match[1]), $lon => floatval($match[2]));
 			}
 		}
 		return $code;
@@ -136,6 +131,7 @@ class GeocodedBehavior extends ModelBehavior {
 		}
 		return $m;
 	}
+
 /**
  * Generates an SQL query to calculate the distance between the coordinates of each record and the given x/y values,
  * and compares the result to $distance.
@@ -144,60 +140,71 @@ class GeocodedBehavior extends ModelBehavior {
  * @param mixed $y  If $x is an array, this value is used as $distance, otherwise, the Y coordinate.
  * @param float $distance  The distance (in miles) to search within
  */
-	function findAllBydistance(&$model, $x, $y, $distance = null) {
-		extract($this->settings[$model->name]);
-		if (is_array($x)) {
-			$distance = $y;
-			list($x, $y) = array_values($x);
-		}
-		list($x2, $y2) = array($model->escapeField($fields[1]), $model->escapeField($fields[0]));
-		list($x, $y, $distance) = array(floatval($x), floatval($y), floatval($distance));
-		return $model->findAll("(3958 * 3.1415926 * SQRT(({$y2} - {$y}) * ({$y2} - {$y}) + COS({$y2} / 57.29578) * COS({$y} / 57.29578) * ({$x2} - {$x}) * ({$x2} - {$x})) / 180) <= {$distance}");
-	}
-/**
- * Generates an SQL query to calculate the distance between the coordinates of each record and the given x/y values,
- * and compares the result to $distance.
- *
- * @param mixed $x  Either a float or an array.  If an array, it should contain the X and Y values of the coordinate.
- * @param mixed $y  If $x is an array, this value is used as $distance, otherwise, the Y coordinate.
- * @param float $distance  The distance (in miles) to search within
- */
-	function findAllNearDistance(&$model, $x, $y, $limit = null) {
+	function findAllNear(&$model, $x, $y, $limit = null) {
 		extract($this->settings[$model->name]);
 		if (is_array($x)) {
 			$limit = $y;
 			list($x, $y) = array_values($x);
 		}
-		list($x2, $y2) = array($model->escapeField($fields[1]), $model->escapeField($fields[0]));
+		list($x2, $y2) = array($model->escapeField($lon), $model->escapeField($lat));
 		list($x, $y) = array(floatval($x), floatval($y));
+		debug(compact('x', 'y', 'x2', 'y2', 'limit'));
 		$fields = array(
-			"(3958 * 3.1415926 * SQRT(({$y2} - {$y}) * ({$y2} - {$y}) + COS({$y2} / 57.29578) * COS({$y} / 57.29578) * ({$x2} - {$x}) * ({$x2} - {$x})) / 180) as distance",
+			" as distance",
 			$model->alias . '.*'
 		);
+		debug($fields);
 		$order = array('distance IS NOT NULL DESC', 'distance ASC');
 		$records = $model->find('all', compact('fields', 'order', 'limit', 'conditions'));
 		return $records;
 	}
-}
-
-class DynamicModel extends AppModel {
-
-	function __construct($options = array()) {
-		if (is_string($options)) {
-			$options = array('name' => $options);
+/**
+ * Returns the equation that computes the difference between 2 points.
+ */
+ 	function getEquation(&$model, $x, $y) {
+ 		extract($this->settings[$model->name]);
+ 		list($lat, $lon) = array($model->escapeField($lat), $model->escapeField($lon));
+		return "(3958 * 3.1415926 * SQRT(({$lon} - {$y}) * ({$lon} - {$y}) + COS({$lon} / 57.29578) * COS({$y} / 57.29578) * ({$lat} - {$x}) * ({$lat} - {$x})) / 180)";		
+ 	}
+/**
+ * Custom find type
+ */
+ 	function findDistance(&$model, $state, $query, $results) {
+ 		extract($this->settings[$model->name]);
+ 		list($lat, $lon) = array_values($query['from']);
+		if ( 'before' == $state ) {
+			
+			$equation = $this->getEquation($model, $lat, $lon);
+			if ( empty($query['fields']) ) {
+				$query['fields'] = $this->_getDefaultFields($model);
+			}
+			$query['fields'][] = $equation . ' AS distance';
+			
+			if ( !empty($query['conditions']) ) {
+				$newConditions = array();
+				foreach ($query['conditions'] as $key => $val ) {
+					$newConditions[str_replace('distance', $equation, $key)] = $val;
+				}
+				$query['conditions'] = $newConditions;
+			}
+			return $query;
 		}
-		if (!isset($options['name'])) {
-			return null;
+		else if ( 'after' == $state ) {
+			return $results;
 		}
-		$options = am(array(
-			'id' => false,
-			'table' => null,
-			'ds' => null
-		), $options);
-
-		$this->name = $options['name'];
-		parent::__construct($options['id'], $options['table'], $options['ds']);
-	}
+ 	}
+ 	
+ 	function _getDefaultFields(&$model) {
+		$db = ConnectionManager::getDataSource($model->useDbConfig);
+		$fields = $db->fields($model);
+		foreach (array('hasOne', 'belongsTo') as $assoc) {
+			$assocs = array_keys($model->$assoc);
+			foreach ($assocs as $alias) {
+				$fields = array_merge($fields, $db->fields($model->$alias));
+			}
+		}
+		return $fields;
+ 	}
 }
 
 ?>
