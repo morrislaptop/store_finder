@@ -30,7 +30,6 @@ var bounds = new google.maps.LatLngBounds();
 			});
 			
 			google.maps.event.addListener(marker, "click", function(event) {
-				console.log(event);
 				var infowindow = new google.maps.InfoWindow({
 				    content: "<?php echo $javascript->escapeString($infoContent); ?>"
 				});
