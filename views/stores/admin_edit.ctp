@@ -1,7 +1,7 @@
 <?php
 	$javascript->link('http://maps.google.com/maps/api/js?sensor=false', false);
 	$javascript->link('/store_finder/js/gmaps.point', false);
-	$javascript->codeBlock('	
+	$javascript->codeBlock('
 		$(function() {
 		    var myLatlng = new google.maps.LatLng(' . $this->data['Store']['lat'] . ', ' . $this->data['Store']['lon'] . ');
 		    var myOptions = {
@@ -9,17 +9,17 @@
 		      center: myLatlng,
 		      mapTypeId: google.maps.MapTypeId.ROADMAP
 		    }
-		    var map = new google.maps.Map(document.getElementById("map"), myOptions);		    
-		    
+		    var map = new google.maps.Map(document.getElementById("map"), myOptions);
+
 		    marker = new google.maps.Marker({
-		        position: myLatlng, 
+		        position: myLatlng,
 		        map: map,
 		        title:"Hello World!",
 		        draggable: true,
 		        dragCrossMove: true,
 		        clickable: false
-		    }); 
-		    
+		    });
+
 			google.maps.event.addListener(marker, "dragend", function(event) {
 				setForm(event.latLng);
 			});
@@ -28,7 +28,7 @@
 				marker.setPosition(event.latLng);
 			});
 		});
-		
+
 		function setForm(point) {
 			$("#StoreLat").val(point.lat());
 			$("#StoreLon").val(point.lng());
@@ -43,7 +43,7 @@
 			<td width="50%">
 				<fieldset>
  					<legend><?php __('Edit Store');?></legend>
-					<?php echo $this->element('stores' . DS . 'form'); ?>
+					<?php echo $this->element('stores' . DS . 'admin_form'); ?>
 				</fieldset>
 			</td>
 			<td width="50%">
