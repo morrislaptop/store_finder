@@ -16,16 +16,17 @@ var bounds = new google.maps.LatLngBounds();
 				$infoContent .= '<br />' . $html->link($store['Store']['website']) . '<br />';
 			}
 			if ( $store['Contact']['suburb'] ) {
-				$infoContent .= $html->link($store['Contact']['suburb']) . '<br />';
+				$infoContent .= $store['Contact']['suburb'] . '<br />';
 			}
 			if ( $store['Contact']['postcode'] ) {
-				$infoContent .= $html->link($store['Contact']['postcode']) . '<br />';
+				$infoContent .= $store['Contact']['postcode'] . '<br />';
 			}
 			?>
 			var latLng = new google.maps.LatLng(<?php echo $store['Store']['lat']; ?>, <?php echo $store['Store']['lon']; ?>);
 			var marker = new google.maps.Marker({
 				position: latLng, 
 				map: map, 
+				<?php echo !empty($marker) ? 'icon: "' . $html->webroot($marker, true) . '",' : ''; ?>
 				title: "<?php echo $javascript->escapeString($store['Store']['display_address']); ?>"
 			});
 			
