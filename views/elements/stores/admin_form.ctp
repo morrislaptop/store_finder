@@ -11,7 +11,6 @@
 	echo $form->input('Contact.state', array('empty' => '- select -'));
 	echo $form->input('Contact.city');
 	echo $form->input('Contact.country');
-	echo $form->input('Contact.country');
 	
 	echo $form->input('website');
 	echo $form->input('display_address');

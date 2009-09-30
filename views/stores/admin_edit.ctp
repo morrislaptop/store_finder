@@ -21,7 +21,7 @@
 		    });
 
 			google.maps.event.addListener(marker, "dragend", function(event) {
-				setForm(event.latLng);
+				setForm(this.getPosition());
 			});
 			google.maps.event.addListener(map, "click", function(event) {
 				setForm(event.latLng);
